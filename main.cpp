@@ -22,7 +22,7 @@ void traverseFolder(string dirPath) {
         if (stat(fullPath.c_str(), &fileInfo) == -1) continue;
 
         if (S_ISDIR(fileInfo.st_mode)) {
-            traverseFolder(fullPath); // recursive call
+            traverseFolder(fullPath);
         } else if (S_ISREG(fileInfo.st_mode)) {
             long fSize = fileInfo.st_size;
             int binIdx = fSize / binSize;
@@ -42,5 +42,15 @@ int main() {
     cin >> binSize;
 
     traverseFolder(folderInput);
+
+    cout << "\nFile size histogram:\n";
+    for (int i = 0; i < MAX_BINS; i++) {
+        if (histogram[i] > 0) {
+            int start = i * binSize;
+            int end = start + binSize - 1;
+            cout << start << " - " << end << " : " << histogram[i] << endl;
+        }
+    }
+
     return 0;
 }
