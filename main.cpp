@@ -6,7 +6,7 @@ using namespace std;
 const int MAX_BINS = 1000;
 int fileHistogram[MAX_BINS] = {0};
 int binSizeBytes;
-
+#Function to recursively scan a directory and its subdirectories
 void scanDirectory(string pathInput) {
     DIR* dirPtr = opendir(pathInput.c_str());
     if (!dirPtr) return;
@@ -14,6 +14,7 @@ void scanDirectory(string pathInput) {
     struct dirent* item;
     while ((item = readdir(dirPtr)) != NULL) {
         string itemName = item->d_name;
+        #skip current and parent directory entries 
         if (itemName == "." || itemName == "..") continue;
 
         string fullPath = pathInput + "/" + itemName;
@@ -40,9 +41,9 @@ int main() {
 
     cout << "Enter bin size in bytes: ";
     cin >> binSizeBytes;
-
+    #Start scanning the directory 
     scanDirectory(folderPath);
-
+    #print the histogram 
     cout << "\nFile size histogram:\n";
     for (int i = 0; i < MAX_BINS; i++) {
         if (fileHistogram[i] > 0) {
