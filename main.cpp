@@ -4,51 +4,51 @@
 using namespace std;
 
 const int MAX_BINS = 1000;
-int histogram[MAX_BINS] = {0};
-int binSize;
+int fileHistogram[MAX_BINS] = {0};
+int binSizeBytes;
 
-void traverseFolder(string dirPath) {
-    DIR* directory = opendir(dirPath.c_str());
-    if (!directory) return;
+void scanDirectory(string pathInput) {
+    DIR* dirPtr = opendir(pathInput.c_str());
+    if (!dirPtr) return;
 
-    struct dirent* entry;
-    while ((entry = readdir(directory)) != NULL) {
-        string entryName = entry->d_name;
-        if (entryName == "." || entryName == "..") continue;
+    struct dirent* item;
+    while ((item = readdir(dirPtr)) != NULL) {
+        string itemName = item->d_name;
+        if (itemName == "." || itemName == "..") continue;
 
-        string fullPath = dirPath + "/" + entryName;
+        string fullPath = pathInput + "/" + itemName;
 
-        struct stat fileInfo;
-        if (stat(fullPath.c_str(), &fileInfo) == -1) continue;
+        struct stat info;
+        if (stat(fullPath.c_str(), &info) == -1) continue;
 
-        if (S_ISDIR(fileInfo.st_mode)) {
-            traverseFolder(fullPath);
-        } else if (S_ISREG(fileInfo.st_mode)) {
-            long fSize = fileInfo.st_size;
-            int binIdx = fSize / binSize;
-            if (binIdx < MAX_BINS) histogram[binIdx]++;
+        if (S_ISDIR(info.st_mode)) {
+            scanDirectory(fullPath);
+        } else if (S_ISREG(info.st_mode)) {
+            long fSize = info.st_size;
+            int binIdx = fSize / binSizeBytes;
+            if (binIdx < MAX_BINS) fileHistogram[binIdx]++;
         }
     }
 
-    closedir(directory);
+    closedir(dirPtr);
 }
 
 int main() {
-    string folderInput;
+    string folderPath;
     cout << "Enter directory path: ";
-    cin >> folderInput;
+    cin >> folderPath;
 
-    cout << "Enter bin size: ";
-    cin >> binSize;
+    cout << "Enter bin size in bytes: ";
+    cin >> binSizeBytes;
 
-    traverseFolder(folderInput);
+    scanDirectory(folderPath);
 
     cout << "\nFile size histogram:\n";
     for (int i = 0; i < MAX_BINS; i++) {
-        if (histogram[i] > 0) {
-            int start = i * binSize;
-            int end = start + binSize - 1;
-            cout << start << " - " << end << " : " << histogram[i] << endl;
+        if (fileHistogram[i] > 0) {
+            int start = i * binSizeBytes;
+            int end = start + binSizeBytes - 1;
+            cout << start << " - " << end << " : " << fileHistogram[i] << endl;
         }
     }
 
